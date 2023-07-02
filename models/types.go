@@ -1,7 +1,6 @@
 package models
 
 import (
-	"math/rand"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -29,9 +28,7 @@ type Account struct {
 	FirstName         string    `json:"firstName"`
 	LastName          string    `json:"lastName"`
 	Email             string    `json:"email"`
-	Number            int64     `json:"number"`
 	EncryptedPassword string    `json:"-"`
-	Balance           int64     `json:"balance"`
 	CreatedAt         time.Time `json:"createdAt"`
 }
 
@@ -50,7 +47,6 @@ func NewAccount(firstName, lastName, password, email string) (*Account, error) {
 		LastName:          lastName,
 		Email:             email,
 		EncryptedPassword: string(encpw),
-		Number:            int64(rand.Intn(1000000)),
 		CreatedAt:         time.Now().UTC(),
 	}, nil
 }

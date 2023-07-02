@@ -38,7 +38,7 @@ func withJWTAuth(handlerFunc http.HandlerFunc, s db.Storage) http.HandlerFunc {
 		}
 
 		claims := token.Claims.(jwt.MapClaims)
-		if account.Number != int64(claims["accountNumber"].(float64)) {
+		if account.ID != int64(claims["accountID"].(float64)) {
 			permissionDenied(w)
 			return
 		}
@@ -55,8 +55,8 @@ func withJWTAuth(handlerFunc http.HandlerFunc, s db.Storage) http.HandlerFunc {
 func createJWT(account *models.Account) (string, error) {
 	// Create the Claims
 	claims := &jwt.MapClaims{
-		"expiresAt":     15000,
-		"accountNumber": account.Number,
+		"expiresAt": 15000,
+		"accountID": int64(account.ID),
 	}
 
 	secret := os.Getenv("JWT_SECRET")

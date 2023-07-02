@@ -13,9 +13,7 @@ func (s *PostgressStore) createAccountTable() error {
 		first_name varchar(100),
 		last_name varchar(100),
 		email VARCHAR(254) UNIQUE CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
-		number serial,
 		encrypted_password varchar(100),
-		balance serial,
 		created_at timestamp
 	)`
 
@@ -25,25 +23,21 @@ func (s *PostgressStore) createAccountTable() error {
 
 func (s *PostgressStore) CreateAccount(acc *models.Account) error {
 	query := (`insert into account 
-	(first_name, last_name, email, number, encrypted_password, balance, created_at)
-	values ($1, $2, $3, $4, $5, $6, $7)
+	(first_name, last_name, email, encrypted_password, created_at)
+	values ($1, $2, $3, $4, $5)
 	RETURNING id`)
 
-	resp, err := s.db.Query(
+	err := s.db.QueryRow(
 		query,
 		acc.FirstName,
 		acc.LastName,
 		acc.Email,
-		acc.Number,
 		acc.EncryptedPassword,
-		acc.Balance,
-		acc.CreatedAt)
+		acc.CreatedAt).Scan(&acc.ID)
 
 	if err != nil {
 		return err
 	}
-
-	fmt.Printf("%+v\n", resp)
 
 	return nil
 }
@@ -110,9 +104,7 @@ func scanInToAccount(rows *sql.Rows) (*models.Account, error) {
 		&account.FirstName,
 		&account.LastName,
 		&account.Email,
-		&account.Number,
 		&account.EncryptedPassword,
-		&account.Balance,
 		&account.CreatedAt)
 
 	return account, err
