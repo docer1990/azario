@@ -3,7 +3,6 @@ package db
 import (
 	"database/sql"
 	"log"
-	"os"
 
 	"github.com/docer1990/azario/models"
 
@@ -24,7 +23,7 @@ type PostgressStore struct {
 }
 
 func NewPostgressStore() (*PostgressStore, error) {
-	connStr := os.Getenv("DB_HOST")
+	connStr := "postgresql://postgres:19DoCerv90@localhost/zarino?sslmode=disable"
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		log.Fatal(err)
