@@ -17,6 +17,7 @@ type Storage interface {
 	GetAccounts() ([]*models.Account, error)
 	GetAccountById(int) (*models.Account, error)
 	GetAccountByEmail(string) (*models.Account, error)
+	GetDoctors() ([]*models.Doctor, error)
 }
 
 type PostgressStore struct {
@@ -40,5 +41,13 @@ func NewPostgressStore() (*PostgressStore, error) {
 }
 
 func (s *PostgressStore) Init() error {
-	return s.createAccountTable()
+	if err := s.createAccountTable(); err != nil {
+		return err
+	}
+
+	if err := s.createDoctorsTable(); err != nil {
+		return err
+	}
+
+	return nil
 }
