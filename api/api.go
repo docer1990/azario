@@ -25,12 +25,13 @@ func (s *APIServer) Run() {
 	router := mux.NewRouter()
 
 	// user routers
-	router.HandleFunc("/account", makeHTTPHandleFunc(s.handleAccount))
-	router.HandleFunc("/account/{id}", withJWTAuth(makeHTTPHandleFunc(s.handleGetAccountByID), s.store))
+	router.HandleFunc("/account", withJWTAuth(makeHTTPHandleFunc(s.handleAccount), s.store, true))
+	router.HandleFunc("/account/{id}", withJWTAuth(makeHTTPHandleFunc(s.handleGetAccountByID), s.store, true))
 	router.HandleFunc("/login", makeHTTPHandleFunc(s.handleLogin))
 
 	// doctors routers
-	router.HandleFunc("/doctor", makeHTTPHandleFunc(s.handleDoctors))
+	router.HandleFunc("/doctor", withJWTAuth(makeHTTPHandleFunc(s.handleDoctors), s.store, false))
+	router.HandleFunc("/doctor/{id}", withJWTAuth(makeHTTPHandleFunc(s.handleGetDoctorByID), s.store, false))
 
 	log.Println("JSON API server running on port: ", s.listenAddr)
 

@@ -18,6 +18,9 @@ type Storage interface {
 	GetAccountById(int) (*models.Account, error)
 	GetAccountByEmail(string) (*models.Account, error)
 	GetDoctors() ([]*models.Doctor, error)
+	CreateDoctor(*models.Doctor) error
+	GetDoctorById(int) (*models.Doctor, error)
+	DeleteDoctor(int) error
 }
 
 type PostgressStore struct {

@@ -10,7 +10,7 @@ import (
 	jwt "github.com/golang-jwt/jwt/v5"
 )
 
-func withJWTAuth(handlerFunc http.HandlerFunc, s db.Storage) http.HandlerFunc {
+func withJWTAuth(handlerFunc http.HandlerFunc, s db.Storage, applyUserCheck bool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("calling JWT Auth middlware")
 
@@ -25,22 +25,8 @@ func withJWTAuth(handlerFunc http.HandlerFunc, s db.Storage) http.HandlerFunc {
 			return
 		}
 
-		userID, err := getID(r)
-		if err != nil {
-			WriteJSON(w, http.StatusBadRequest, ApiError{Error: "bad request"})
-			return
-		}
-
-		account, err := s.GetAccountById(userID)
-		if err != nil {
-			WriteJSON(w, http.StatusNotFound, ApiError{Error: "not found"})
-			return
-		}
-
-		claims := token.Claims.(jwt.MapClaims)
-		if account.ID != int64(claims["accountID"].(float64)) {
-			permissionDenied(w)
-			return
+		if applyUserCheck {
+			userCheck(w, r, token, s)
 		}
 
 		if err != nil {
@@ -76,4 +62,26 @@ func validateJWT(tokenString string) (*jwt.Token, error) {
 		return []byte(secret), nil
 	})
 
+}
+
+func userCheck(w http.ResponseWriter, r *http.Request, token *jwt.Token, s db.Storage) error {
+	userID, err := getID(r)
+	if err != nil {
+		WriteJSON(w, http.StatusBadRequest, ApiError{Error: "bad request"})
+		return err
+	}
+
+	account, err := s.GetAccountById(userID)
+	if err != nil {
+		WriteJSON(w, http.StatusNotFound, ApiError{Error: "not found"})
+		return err
+	}
+
+	claims := token.Claims.(jwt.MapClaims)
+	if account.ID != int64(claims["accountID"].(float64)) {
+		permissionDenied(w)
+		return fmt.Errorf("invalid account ID")
+	}
+
+	return nil
 }
